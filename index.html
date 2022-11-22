@@ -100,7 +100,7 @@
         const api_key = '3b06e88b695e46299c5ae3eb4dee346d';
         const exclude_tags = 'relationship,jewish,dark,racist,sexual,insults,political,sexist,blondes,nsfw,religious,kids';
         let offset = Math.floor(Math.random() * 1000);
-        let URL = `${api_dir}api-key=${api_key}&number=1&include-tags=clean&exclude-tags=${exclude_tags}&min-rating=10&offset=${offset}`;
+        let URL = `${api_dir}api-key=${api_key}&number=1&include-tags=clean&exclude-tags=${exclude_tags}&min-rating=8&offset=${offset}`;
             
         fetch(URL)
             .then((response) => response.json())
