@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 
     <style>
         h1{
@@ -17,6 +17,14 @@
             visibility: hidden;
         }
         #daily_joke.display{
+            visibility: visible;
+            animation-name: fade-in;
+            animation-duration: 1s;
+        }
+        #team_member{
+            visibility: hidden;
+        }
+        #team_member{
             visibility: visible;
             animation-name: fade-in;
             animation-duration: 1s;
@@ -82,7 +90,8 @@
             </div>
             <div class="col-12">
                 <div class="text-center">
-                    <button onclick="chooseSpeaker()" type="button" id="btn" class="btn btn-primary">Choose Speaker</button>
+                    <button onclick="lastSpeaker()" type="button" id="btnLast" class="btn btn-primary">Last Speaker</button>
+                    <button onclick="nextSpeaker()" type="button" id="btnNext" class="btn btn-primary">Next Speaker</button>
                 </div>
             </div>
         </div>
@@ -93,15 +102,18 @@
             
     var speakers1 = ['Julia Joachimowicz', 'Emma Mallon', 'Jen Grajkowski', 'Jennifer Guo', 'Luis Díaz', 'Julianna Hindemith', 'Eduardo Arrangóiz'];
     var speakers2 = ['Abner Rojas', 'Augusto Pavía Rosas', 'Cesar Villegas', 'Michael Li', 'Jéssica Motta', 'Kathryn Robertson',  'Marcos Herrera', 'Shaun Seeram',  'Enrique Lozano', 'Filip Swierczynski', 'Joao Dantas', 'Robert Ling'];
+    var index = 0;
+    var speakers;
 
     let joke = () => {
 
-        const api_dir = 'https://api.humorapi.com/jokes/search?'
+        const api_dir = 'https://api.humorapi.com/jokes/search?';
         const api_key = '3b06e88b695e46299c5ae3eb4dee346d';
         const exclude_tags = 'relationship,jewish,dark,racist,sexual,insults,political,sexist,blondes,nsfw,religious,kids';
         let offset = Math.floor(Math.random() * 1000);
         let URL = `${api_dir}api-key=${api_key}&number=1&include-tags=clean&exclude-tags=${exclude_tags}&min-rating=8&offset=${offset}`;
-            
+        
+        /*
         fetch(URL)
             .then((response) => response.json())
             .then((data) => { 
@@ -112,25 +124,86 @@
                 console.error('Error:', error);
                 console.error('Probably you ran out of points for the day :V -- With love César')
             });
+        */
 
     }
     joke();
 
     let speakerShuffler = (speakerGroup) => {       
-        let speakerNumber = Math.floor(Math.random() * (speakerGroup.length -1 ));
-        document.getElementById('team_member').textContent = speakerGroup[speakerNumber];
-        speakerGroup.splice(speakerNumber, 1);
+
+        let currentIndex = speakerGroup.length,  randomIndex;
+
+        while (currentIndex != 0) {
+
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        [speakerGroup[currentIndex], speakerGroup[randomIndex]] = [
+        speakerGroup[randomIndex], speakerGroup[currentIndex]];
+        }
+        return speakerGroup;
+    }
+    
+    let speakersJoiner = () => {
+        speakerShuffler(speakers1);
+        speakerShuffler(speakers2);
+        speakers = speakers1.concat(speakers2);
+        console.log(speakers);
+        return speakers;
+    }
+    speakersJoiner();
+
+    let indexMover = (value) =>{
+
+        if(index > 0 && index < speakers.length ){
+            if(index > 0 && index < speakers.length){
+                if(value == 'plus'){
+                    index = index+1;
+                }else if(value == 'minus'){
+                    index = index-1;
+                }
+            }
+        }else if(index == 0) {
+                if(value == 'plus'){
+                    index = index+1;
+                    return index;
+                }else if(value == 'minus'){
+                    return index;
+                }       
+        }else if(index == speakers.length){
+                if(value == 'plus'){
+                    return index;
+                }else if(value == 'minus'){
+                    index = index-1;                    
+                }  
+        }
+        return index;
     }
 
-    let chooseSpeaker = () =>  {
-        event.preventDefault();        
-        if(speakers1.length > 0){
-            speakerShuffler(speakers1);
-        }else if(speakers2.length > 0){
-            speakerShuffler(speakers2);
-        }else{
-            document.getElementById('team_member').textContent = "No more people left :v" ;
+    let speakerDrawing = (speakerGroup,value)=>{
+          
+        if(value == 'minus'){
+            indexMover(value); 
+            document.getElementById('team_member').textContent = speakerGroup[index];
+        }else if(value == 'plus'){
+            indexMover(value); 
+            document.getElementById('team_member').textContent = speakerGroup[index];
+
         }
+    }
+
+    let lastSpeaker = () =>  {
+        event.preventDefault();
+        console.log(index);
+        speakerDrawing(speakers,'minus');
+        console.log(index);
+    }
+
+    let nextSpeaker = () =>  {
+        event.preventDefault();
+        console.log(index);
+        speakerDrawing(speakers,'plus');
+        console.log(index);
     }
 
     let animation = () => {
@@ -138,8 +211,13 @@
             document.getElementById("daily_joke").classList.add("display");
         }, 500);
         setTimeout(() => {
-            document.getElementById("btn").classList.add("display");
-        }, 4000);          
+            document.getElementById('team_member').createTextNode(`${speakers[0]}`);
+            document.getElementById("team_member").classList.add("display");
+        }, 1500);
+        setTimeout(() => {
+            document.getElementById("btnLast").classList.add("display");
+            document.getElementById("btnNext").classList.add("display");
+        }, 3000);          
     }
     animation();
 
