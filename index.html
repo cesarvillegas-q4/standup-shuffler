@@ -41,6 +41,15 @@
             animation-name: fade-in;
             animation-duration: 1s;
         }
+        #gif{
+            visibility: hidden;
+        }
+
+        #gif.display{
+            visibility: visible;
+            animation-name: fade-in;
+            animation-duration: 1s;
+        }
 
         #team_member{
             visibility: hidden;
@@ -104,6 +113,7 @@
                     <div id="daily_joke container" class="mt-4">
                         <p id="daily_joke_setup" class="d-flex justify-content-center  mb-0" ></p>
                         <p id="daily_joke_punchline" class="d-flex justify-content-center" ></p>
+                        <p id="gif"></p>
                     </div>
                 </div>
             </div>
@@ -134,16 +144,12 @@
     var index = 0;
     var speakers;
 
-    const insertJoke = (value , id) => {
-  
-        console.log(value);
-
+    insertJoke = (value , id) => {
         let joke = document.getElementById(id);
         joke.textContent = value;
     }
 
-    const joke = () => {
-
+    (() => {
         const options = {
             method: 'GET',
             headers: {
@@ -151,44 +157,47 @@
                 'X-RapidAPI-Host': 'dad-jokes.p.rapidapi.com'
             }
         };
-
         fetch('https://dad-jokes.p.rapidapi.com/random/joke', options)
             .then(response => response.json())
             .then((response) => {
-
                 let setup = response.body[0].setup;
                 let punchline = response.body[0].punchline;
-
                 insertJoke(setup , 'daily_joke_setup');
                 insertJoke(punchline , 'daily_joke_punchline');
+        })
+        .catch((error) => {
+            console.error(error);
+            console.error('Probably you ran out of points for the day :V -- With love César');
+        });
+    })();
 
-            })
-            .catch((error) => {
-                console.error(error);
-                console.error('Probably you ran out of points for the day :V -- With love César');
-            });
-
-        };
-    joke();
-
-    const speakerShuffler = (speakerGroup) => {       
-
-        let currentIndex = speakerGroup.length,  randomIndex;
-
+    randomizer = value => {       
+        let currentIndex = value.length,  randomIndex;
         while (currentIndex != 0) {
-
         randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex--;
-
-        [speakerGroup[currentIndex], speakerGroup[randomIndex]] = [
-        speakerGroup[randomIndex], speakerGroup[currentIndex]];
+        [value[currentIndex], value[randomIndex]] = [
+        value[randomIndex], value[currentIndex]];
         }
-        return speakerGroup;
+        return value;
     }
 
     (() => {
-        speakerShuffler(speakers1);
-        speakerShuffler(speakers2);
+        fetch('gifs.json')           
+        .then(response => response.json())
+        .then((response) => {
+            let responseRandomized = randomizer(response.gif);
+            let frame = document.createElement("iframe");
+            frame.setAttribute("src",responseRandomized[0]);
+            frame.setAttribute("height",300);
+            frame.setAttribute("width",480);
+            document.getElementById('gif').append(frame);
+        });
+    })();
+
+    (() => {
+        randomizer(speakers1);
+        randomizer(speakers2);
         speakers = speakers1.concat(speakers2);
         speakers.push('No more speakers available :v');
         console.log(speakers);
@@ -196,7 +205,7 @@
     })();
     
 
-    const indexMover = (value) =>{
+    indexMover = value => {
 
         if(index > 0 && index < (speakers.length - 1) ){
                 if(value == 'plus'){
@@ -221,7 +230,7 @@
         return index;
     }
 
-    const speakerDrawing = (speakerGroup,value)=>{
+    speakerDrawing = (speakerGroup,value) => {
           
         if(value == 'minus'){
             indexMover(value); 
@@ -233,40 +242,43 @@
         }
     }
 
-    const lastSpeaker = () =>  {
+    lastSpeaker = () =>  {
         event.preventDefault();
         console.log(index);
         speakerDrawing(speakers,'minus');
         console.log(index);
     }
 
-    const nextSpeaker = () =>  {
+    nextSpeaker = () =>  {
         event.preventDefault();
         console.log(index);
         speakerDrawing(speakers,'plus');
         console.log(index);
     }
 
-    const animation = () => {
+    (() => {
         setTimeout(() => {
-            document.getElementById("daily_joke").classList.add("display");
-        }, 1000);
+            /*document.getElementById("daily_joke").classList.add("display");*/
+        }, 100);
         setTimeout(() => {
-            document.getElementById("daily_joke_setup").classList.add("display");
-        }, 1500);
+            /*document.getElementById("daily_joke_setup").classList.add("display");*/
+        }, 500);
         setTimeout(() => {
-            document.getElementById("daily_joke_punchline").classList.add("display");
-        }, 1800);
+            /*document.getElementById("daily_joke_punchline").classList.add("display");*/
+        }, 2500);
+        setTimeout(() => {
+            document.getElementById("gif").classList.add("display");
+        }, 3000);
         setTimeout(() => {
             document.getElementById('team_member').textContent = speakers[0];
             document.getElementById("team_member").classList.add("display");
-        }, 2000);
+        }, 3500);
         setTimeout(() => {
             document.getElementById("btnLast").classList.add("display");
             document.getElementById("btnNext").classList.add("display");
-        }, 3000);   
-    };
-    animation();
+        }, 4000);   
+    
+    })();
 
 
 
