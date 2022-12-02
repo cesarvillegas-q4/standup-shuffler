@@ -21,6 +21,27 @@
             animation-name: fade-in;
             animation-duration: 1s;
         }
+
+        #daily_joke_setup{
+            visibility: hidden;
+        }
+
+        #daily_joke_setup.display{
+            visibility: visible;
+            animation-name: fade-in;
+            animation-duration: 1s;
+        }
+
+        #daily_joke_punchline{
+            visibility: hidden;
+        }
+
+        #daily_joke_punchline.display{
+            visibility: visible;
+            animation-name: fade-in;
+            animation-duration: 1s;
+        }
+
         #team_member{
             visibility: hidden;
         }
@@ -80,10 +101,13 @@
             <div class="col-12">
                 <div class="text-center">
                     <h1>Good Morning Squad! </h1>
-                    <p id="daily_joke" class="d-flex justify-content-center container" ></p>
+                    <div id="daily_joke container" class="mt-4">
+                        <p id="daily_joke_setup" class="d-flex justify-content-center  mb-0" ></p>
+                        <p id="daily_joke_punchline" class="d-flex justify-content-center" ></p>
+                    </div>
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 mt-4 mb-4">
                 <div class="text-center">
                     <p id="team_member"></p>
                 </div>
@@ -99,37 +123,55 @@
 
 <!--App-->
 <script>
+    /*
+    ((n) => {
+    console.log('Ok');
+    })()
+    */
             
     var speakers1 = ['Julia Joachimowicz', 'Emma Mallon', 'Jen Grajkowski', 'Jennifer Guo', 'Luis Díaz', 'Julianna Hindemith', 'Eduardo Arrangóiz'];
     var speakers2 = ['Abner Rojas', 'Augusto Pavía Rosas', 'Cesar Villegas', 'Michael Li', 'Jéssica Motta', 'Kathryn Robertson',  'Marcos Herrera', 'Shaun Seeram',  'Enrique Lozano', 'Filip Swierczynski', 'Joao Dantas', 'Robert Ling'];
     var index = 0;
     var speakers;
 
-    let joke = () => {
+    const insertJoke = (value , id) => {
+  
+        console.log(value);
 
-        const api_dir = 'https://api.humorapi.com/jokes/search?';
-        const api_key = '3b06e88b695e46299c5ae3eb4dee346d';
-        const exclude_tags = 'relationship,jewish,dark,racist,sexual,insults,political,sexist,blondes,nsfw,religious,kids';
-        let offset = Math.floor(Math.random() * 1000);
-        let URL = `${api_dir}api-key=${api_key}&number=1&include-tags=clean&exclude-tags=${exclude_tags}&min-rating=8&offset=${offset}`;
-        
-        
-        fetch(URL)
-            .then((response) => response.json())
-            .then((data) => { 
-            let joke_id = document.getElementById('daily_joke');
-                joke_id.textContent = data.jokes[0].joke;
+        let joke = document.getElementById(id);
+        joke.textContent = value;
+    }
+
+    const joke = () => {
+
+        const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': '87cb5eba93msh8bd17b0856aa692p12494cjsnb8524a965aea',
+                'X-RapidAPI-Host': 'dad-jokes.p.rapidapi.com'
+            }
+        };
+
+        fetch('https://dad-jokes.p.rapidapi.com/random/joke', options)
+            .then(response => response.json())
+            .then((response) => {
+
+                let setup = response.body[0].setup;
+                let punchline = response.body[0].punchline;
+
+                insertJoke(setup , 'daily_joke_setup');
+                insertJoke(punchline , 'daily_joke_punchline');
+
             })
             .catch((error) => {
-                console.error('Error:', error);
-                console.error('Probably you ran out of points for the day :V -- With love César')
+                console.error(error);
+                console.error('Probably you ran out of points for the day :V -- With love César');
             });
-        
 
-    }
+        };
     joke();
 
-    let speakerShuffler = (speakerGroup) => {       
+    const speakerShuffler = (speakerGroup) => {       
 
         let currentIndex = speakerGroup.length,  randomIndex;
 
@@ -143,18 +185,18 @@
         }
         return speakerGroup;
     }
-    
-    let speakersJoiner = () => {
+
+    (() => {
         speakerShuffler(speakers1);
         speakerShuffler(speakers2);
         speakers = speakers1.concat(speakers2);
         speakers.push('No more speakers available :v');
         console.log(speakers);
         return speakers;
-    }
-    speakersJoiner();
+    })();
+    
 
-    let indexMover = (value) =>{
+    const indexMover = (value) =>{
 
         if(index > 0 && index < (speakers.length - 1) ){
                 if(value == 'plus'){
@@ -179,7 +221,7 @@
         return index;
     }
 
-    let speakerDrawing = (speakerGroup,value)=>{
+    const speakerDrawing = (speakerGroup,value)=>{
           
         if(value == 'minus'){
             indexMover(value); 
@@ -191,34 +233,41 @@
         }
     }
 
-    let lastSpeaker = () =>  {
+    const lastSpeaker = () =>  {
         event.preventDefault();
         console.log(index);
         speakerDrawing(speakers,'minus');
         console.log(index);
     }
 
-    let nextSpeaker = () =>  {
+    const nextSpeaker = () =>  {
         event.preventDefault();
         console.log(index);
         speakerDrawing(speakers,'plus');
         console.log(index);
     }
 
-    let animation = () => {
+    const animation = () => {
         setTimeout(() => {
             document.getElementById("daily_joke").classList.add("display");
-        }, 500);
+        }, 1000);
+        setTimeout(() => {
+            document.getElementById("daily_joke_setup").classList.add("display");
+        }, 1500);
+        setTimeout(() => {
+            document.getElementById("daily_joke_punchline").classList.add("display");
+        }, 1800);
         setTimeout(() => {
             document.getElementById('team_member').textContent = speakers[0];
             document.getElementById("team_member").classList.add("display");
-        }, 1500);
+        }, 2000);
         setTimeout(() => {
             document.getElementById("btnLast").classList.add("display");
             document.getElementById("btnNext").classList.add("display");
-        }, 3000);          
-    }
+        }, 3000);   
+    };
     animation();
+
 
 
 </script>
