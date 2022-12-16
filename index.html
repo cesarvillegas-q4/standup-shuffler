@@ -150,6 +150,13 @@
     }
 
     (() => {
+        fetch('key.json')           
+        .then(response => response.json())
+        .then((response) => {
+            let key = response;
+            console.log(key);
+
+        });
         const options = {
             method: 'GET',
             headers: {
