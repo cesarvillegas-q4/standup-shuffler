@@ -150,13 +150,6 @@
     }
 
     (() => {
-        fetch('key.json')           
-        .then(response => response.json())
-        .then((response) => {
-            let key = response;
-            console.log(key);
-
-        });
         const options = {
             method: 'GET',
             headers: {
@@ -177,7 +170,6 @@
             console.error('Probably you ran out of points for the day :V -- With love César');
         });
     })();
-
     randomizer = value => {       
         let currentIndex = value.length,  randomIndex;
         while (currentIndex != 0) {
@@ -264,9 +256,6 @@
     }
 
     (() => {
-        setTimeout(() => {
-            document.getElementById("daily_joke").classList.add("display");
-        }, 100);
         setTimeout(() => {
             document.getElementById("daily_joke_setup").classList.add("display");
         }, 500);
